@@ -522,12 +522,7 @@ public class Loan extends AbstractPersistableCustom {
         this.rates = rates;
 
         // Add net get net disbursal amount from charges and principal
-        this.netDisbursalAmount = this.approvedPrincipal;
-        if (loanCharges != null && !loanCharges.isEmpty()) {
-            for (LoanCharge charge : loanCharges) {
-                this.netDisbursalAmount = this.netDisbursalAmount.subtract(charge.amount());
-            }
-        }
+        this.netDisbursalAmount = this.approvedPrincipal.subtract(deriveSumTotalOfChargesDueAtDisbursement());
 
     }
 
@@ -2192,9 +2187,6 @@ public class Loan extends AbstractPersistableCustom {
 
             BigDecimal approvedLoanAmount = command.bigDecimalValueOfParameterNamed(LoanApiConstants.approvedLoanAmountParameterName);
 
-            BigDecimal netDisbursalAmount = command
-                    .bigDecimalValueOfParameterNamed(LoanApiConstants.disbursementNetDisbursalAmountParameterName);
-
             if (approvedLoanAmount != null) {
 
                 // Approved amount has to be less than or equal to principal
@@ -2280,6 +2272,7 @@ public class Loan extends AbstractPersistableCustom {
                         this.loanOfficer, approvedOn);
                 this.loanOfficerHistory.add(loanOfficerAssignmentHistory);
             }
+            this.adjustNetDisbursalAmount(this.approvedPrincipal);
         }
 
         return actualChanges;
@@ -6664,4 +6657,7 @@ public class Loan extends AbstractPersistableCustom {
         this.loanType = loanType;
     }
 
+    public void adjustNetDisbursalAmount(BigDecimal adjustedAmount) {
+        this.netDisbursalAmount = adjustedAmount.subtract(this.deriveSumTotalOfChargesDueAtDisbursement());
+    }
 }
