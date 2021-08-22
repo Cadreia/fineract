@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.Gson;
-import io.restassured.path.json.JsonPath;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 import java.io.ByteArrayInputStream;
@@ -200,18 +199,7 @@ public class LoanTransactionHelper {
         return performLoanTransaction(createLoanOperationURL(UNDO_APPROVAL_LOAN_COMMAND, loanID), undoBodyJson);
     }
 
-    public String getNetDiisbursalAmount(final Integer loanID) {
-        final String loanDetails = this.getLoanDetails(this.requestSpec, this.responseSpec, loanID);
-        final String netDisbursalAmount = JsonPath.from(loanDetails).get("netDisbursalAmount").toString();
-        return netDisbursalAmount;
-    }
-
-    public HashMap disburseLoan(final String date, final Integer loanID) {
-        final String netDisbursalAmount = getNetDiisbursalAmount(loanID);
-        return disburseLoan(date, loanID, netDisbursalAmount);
-    }
-
-    public HashMap disburseLoan(final String date, final Integer loanID, final String disburseAmt, final String netDisbursalAmount) {
+    public HashMap disburseLoan(final String date, final Integer loanID, final String netDisbursalAmount) {
         return performLoanTransaction(createLoanOperationURL(DISBURSE_LOAN_COMMAND, loanID),
                 getDisburseLoanAsJSON(date, null, netDisbursalAmount));
     }
@@ -221,26 +209,15 @@ public class LoanTransactionHelper {
                 getDisburseLoanWithRepaymentRescheduleAsJSON(date, null, adjustRepaymentDate));
     }
 
-    public HashMap disburseLoan(final String date, final Integer loanID, final String disburseAmt) {
-        final String netDisbursalAmount = getNetDiisbursalAmount(loanID);
+    public HashMap disburseLoan(final String date, final Integer loanID, final String disburseAmt, final String netDisbursalAmount) {
         return performLoanTransaction(createLoanOperationURL(DISBURSE_LOAN_COMMAND, loanID),
                 getDisburseLoanAsJSON(date, disburseAmt, netDisbursalAmount));
-    }
-
-    public Object disburseLoan(final String date, final Integer loanID, ResponseSpecification responseValidationError) {
-        final String netDisbursalAmount = getNetDiisbursalAmount(loanID);
-        return disburseLoan(date, loanID, responseValidationError, netDisbursalAmount);
     }
 
     public Object disburseLoan(final String date, final Integer loanID, ResponseSpecification responseValidationError,
             final String netDisbursalAmount) {
         return performLoanTransaction(createLoanOperationURL(DISBURSE_LOAN_COMMAND, loanID),
                 getDisburseLoanAsJSON(date, null, netDisbursalAmount), responseValidationError);
-    }
-
-    public HashMap disburseLoanToSavings(final String date, final Integer loanID) {
-        final String netDisbursalAmount = getNetDiisbursalAmount(loanID);
-        return disburseLoanToSavings(date, null, netDisbursalAmount);
     }
 
     public HashMap disburseLoanToSavings(final String date, final Integer loanID, final String netDisbursalAmount) {
